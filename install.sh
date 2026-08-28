@@ -1,5 +1,5 @@
 #!/bin/bash
-# 安装到 ~/bin 并注册每月 1 号 00:00 的定时任务
+# 安装到 ~/bin 并注册定时任务（每天 15:00 唤醒，仅每月 1 号执行）
 set -euo pipefail
 SRC="$(cd "$(dirname "$0")" && pwd)"
 LABEL="com.tencentcleaner.monthly"
@@ -18,12 +18,11 @@ cat > "$PLIST" <<PLIST_EOF
     <array>
         <string>/bin/bash</string>
         <string>$HOME/bin/tencent-cleaner.sh</string>
-        <string>--yes</string>
+        <string>--scheduled</string>
     </array>
     <key>StartCalendarInterval</key>
     <dict>
-        <key>Day</key><integer>1</integer>
-        <key>Hour</key><integer>0</integer>
+        <key>Hour</key><integer>15</integer>
         <key>Minute</key><integer>0</integer>
     </dict>
     <key>StandardOutPath</key><string>$HOME/Library/Logs/tencent-cleaner.log</string>
@@ -36,5 +35,6 @@ PLIST_EOF
 launchctl unload "$PLIST" 2>/dev/null || true
 launchctl load "$PLIST"
 echo "已安装。脚本: ~/bin/tencent-cleaner.sh"
-echo "定时: 每月 1 号 00:00   日志: ~/Library/Logs/tencent-cleaner.log"
+echo "定时: 每天 15:00 唤醒，仅每月 1 号执行；失败则 2、3 号重试"
+echo "日志: ~/Library/Logs/tencent-cleaner.log"
 echo "先跑一次预演看看:  bash ~/bin/tencent-cleaner.sh"
